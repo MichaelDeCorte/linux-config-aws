@@ -8,6 +8,14 @@ git config --global user.email mdecorte.decorte+github@gmail.com
 git config --global user.name "$USER"
 git config --global push.default simple
 
+if [ ! -e ~/.gitignore ]
+then
+cat <<EOF > ~/.gitignore
+*.[oa]
+*~
+EOF
+fi
+
 # setup rsa key authentication
 
 if [ ! -e ~/.ssh/github.com ]
@@ -18,6 +26,7 @@ fi
 
 chmod 400 ~/.ssh/github.com
 
+touch ~/.ssh/config
 if ! grep -q github.com ~/.ssh/config
 then
 cat <<EOF >> ~/.ssh/config

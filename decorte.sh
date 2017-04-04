@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PACKAGES=emacs
+PACKAGES="emacs git"
 
 for p in $PACKAGES
 do
