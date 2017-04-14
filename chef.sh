@@ -1,12 +1,29 @@
 #!/bin/bash
 set -e
 
+
 REPO=$HOME/chef-repo
 
+rm -rf $REPO # delete when done
+
 mkdir -p $REPO
+
+./ruby.sh
+
+( 
+cd aws
+unzip -u starter_kit.zip
+mv -f chef-*/* chef-*/.??* $REPO
+rmdir chef-*
+)
+
 mkdir -p $REPO/cookbooks
 mkdir -p $REPO/roles
 mkdir -p $REPO/environments
+export SSL_CERT_FILE="$REPO/.chef/ca_certs/opsworks-cm-ca-2016-root.pem"
+chmod 400 $SSL_CERT_FILE
+
+ls -l $SSL_CERT_FILE
 
 echo =========== Install Chef
 if [ ! -e /opt/chefdk/bin/chef ]
@@ -45,12 +62,22 @@ EOF
 
 fi
 
+echo =========== Install Berks
+if [ ! -e /opt/chef/embedded/bin/berks ]
+then
+    # sudo /opt/chef/embedded/bin/gem install berkshelf --no-ri --no-rdoc
+    # sudo ln -s /opt/chef/embedded/bin/berks /usr/local/bin/berks
+    sudo gem install berkshelf --no-ri --no-rdoc
+fi
+
+berks install
+berks upload
+
 echo =========== Download assorted cookbooks
 (
+    cd $REPO
     if [ ! -e $REPO/cookbooks/apt ]
     then
-	cd $REPO/cookbooks
- 
 	knife cookbook site download apt 
 	tar zxf apt*gz
 	rm apt*.tar.gz
@@ -72,12 +99,3 @@ exit
 knife cookbook upload hello_world
 
 
-echo =========== Install Berks
-if [ ! -e /opt/chef/embedded/bin/berks ]
-then
-    sudo /opt/chef/embedded/bin/gem install berkshelf --no-ri --no-rdoc
-    sudo ln -s /opt/chef/embedded/bin/berks /usr/local/bin/berks
-fi
-
-berks install
-berks upload
