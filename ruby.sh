@@ -15,7 +15,7 @@ for p in $PACKAGES
 do
     if ! rpm -q $p > /dev/null
     then
-	sudo yum install $p
+	sudo yum -y install $p
     fi
 done
 
