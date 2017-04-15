@@ -3,6 +3,7 @@ set -e
 
 
 REPO=$HOME/chef-repo
+OPSWORKS_CERT="$REPO/.chef/ca_certs/opsworks-cm-ca-2016-root.pem"
 
 rm -rf $REPO # delete when done
 
@@ -10,20 +11,21 @@ mkdir -p $REPO
 
 ./ruby.sh
 
-( 
-cd aws
-unzip -u starter_kit.zip
-mv -f chef-*/* chef-*/.??* $REPO
-rmdir chef-*
-)
+if [ ! -f $OPSWORKS_CERT ]
+then
+    ( 
+	cd aws
+	unzip -u starter_kit.zip
+	mv -f chef-*/* chef-*/.??* $REPO
+	rmdir chef-*
+    )
+fi
 
 mkdir -p $REPO/cookbooks
 mkdir -p $REPO/roles
 mkdir -p $REPO/environments
-export SSL_CERT_FILE="$REPO/.chef/ca_certs/opsworks-cm-ca-2016-root.pem"
-chmod 400 $SSL_CERT_FILE
-
-ls -l $SSL_CERT_FILE
+# export SSL_CERT_FILE=$OPSWORKS_CERT 
+# chmod 400 $SSL_CERT_FILE
 
 echo =========== Install Chef
 if [ ! -e /opt/chefdk/bin/chef ]
@@ -70,32 +72,25 @@ then
     sudo gem install berkshelf --no-ri --no-rdoc
 fi
 
+
+cd $REPO
 berks install
 berks upload
 
 echo =========== Download assorted cookbooks
-(
-    cd $REPO
-    if [ ! -e $REPO/cookbooks/apt ]
-    then
-	knife cookbook site download apt 
-	tar zxf apt*gz
-	rm apt*.tar.gz
-    fi
-)
+if [ ! -e $REPO/cookbooks/apt ]
+then
+    knife cookbook site download apt 
+    tar zxf apt*gz
+    rm apt*.tar.gz
+fi
 
 echo =========== Converge locally on $(hostname) for hello_world cookbook
-(
-    cd $REPO
-    chef-client --local-mode --runlist 'recipe[hello_world]'
-    chef-solo -c solo.rb -j web.json
-)
+chef-client --local-mode --runlist 'recipe[hello_world]'
+chef-solo -c solo.rb -j web.json
 
 
-exit
-
-############################################################
-
+echo =========== Upload cookbooks
 knife cookbook upload hello_world
 
 

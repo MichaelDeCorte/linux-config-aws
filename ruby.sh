@@ -23,7 +23,7 @@ wget -O - https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.1.tar.gz | gzip -dc 
 
 cd ruby-$RUBYVERSION
 
-./configure 
+./configure --prefix=/usr
 make
 sudo make install
 sudo mv -n /usr/bin/ruby /usr/bin/ruby.old
