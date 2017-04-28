@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PACKAGES="emacs git"
+PACKAGES="emacs git telnet"
 
 for p in $PACKAGES
 do
