@@ -1,16 +1,17 @@
 #!/bin/bash
+set -x
 
-REPO="linux-config-aws"
 USER=MichaelDeCorte
+REPO="linux-config-aws"
+EMAIL=mdecorte.decorte+github@gmail.com
 
-git init
-git config --global user.email mdecorte.decorte+github@gmail.com 
-git config --global user.name "$USER"
-git config --global push.default simple
+# USER=VirtualClarity
+# REPO=MigrationDirector-Analysis
+# EMAIL=mdecorte.decorte@virtualclarity.com
 
 if [ ! -e ~/.gitignore ]
 then
-cat <<EOF > ~/.gitignore
+	cat <<EOF > ~/.gitignore
 *.[oa]
 *~
 EOF
@@ -29,29 +30,56 @@ chmod 400 ~/.ssh/github.com
 touch ~/.ssh/config
 if ! grep -q github.com ~/.ssh/config
 then
-cat <<EOF >> ~/.ssh/config
+	cat <<EOF >> ~/.ssh/config
 Host github.com
      HostName github.com
      User git
      IdentityFile ~/.ssh/github.com
 EOF
-chmod 644 ~/.ssh/config
+	chmod 644 ~/.ssh/config
 fi
 
-git remote set-url origin git@github.com:"$USER"/"$REPO".git
-
-exit
-
-# setup new repo
-
-echo "# $REPO" > README.md
-git add README.md
-git remote add origin https://github.com/$USER/"$REPO".git
-git commit -m "first commit"
-git push -u origin master
+git config --global user.email mdecorte.decorte@virtualclarity.com
+git config --global user.name "$USER"
+git config --global push.default simple
 
 
+
+# check an existing repostory
+
+if true
+then
+    git clone https://github.com/$USER/"$REPO".git
+
+    cd $REPO
+
+    git remote set-url origin git@github.com:"$USER"/"$REPO".git
+
+fi
+
+# setup a new repostory
+if false
+then
+	git init
+
+	# setup new repo
+
+	if [ ! -f README.md ]
+	then
+	    echo "# $REPO" > README.md
+	fi
+	git add README.md
+
+	git remote add origin https://github.com/$USER/"$REPO".git
+	git remote set-url origin git@github.com:"$USER"/"$REPO".git
+
+	git commit -m "first commit"
+
+	git push -u origin master
+
+fi
 exit
 
 # don't use ssh.  save id and pw
 git config credential.helper store
+
